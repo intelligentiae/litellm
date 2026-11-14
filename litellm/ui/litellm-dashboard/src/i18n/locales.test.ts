@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import i18n from "./i18n";
 import en from "./locales/en.json";
+import es from "./locales/es.json";
+import italian from "./locales/it.json";
 
 type Messages = { readonly [key: string]: string | Messages };
 
@@ -50,5 +52,38 @@ describe("en.json", () => {
 
   it("is what the i18n instance resolves keys from", () => {
     expect(i18n.t("workflows.drawer.eventCount", { count: 2 })).toBe("2 events");
+  });
+});
+
+const placeholders = (value: string): string[] => value.match(/\{\{[A-Za-z_][A-Za-z0-9_]*(?:, [a-z]+)?\}\}/g) ?? [];
+const tags = (value: string): string[] => value.match(/<\/?[A-Za-z0-9]+\/>|<\/?[A-Za-z0-9]+>/g) ?? [];
+
+describe.each([
+  ["it", italian],
+  ["es", es],
+] as const)("%s.json", (language, messages) => {
+  const translated = leaves(messages, "");
+  const translatedKeys = new Map(translated);
+
+  it("has the same keys as English, including the format templates", () => {
+    expect([...translatedKeys.keys()].sort()).toEqual([...keys].sort());
+  });
+
+  it("keeps every placeholder and inline tag from the English string", () => {
+    const drifted = entries.flatMap(([key, value]) => {
+      const source = String(value);
+      const target = translatedKeys.get(key);
+      if (typeof target !== "string") return [key];
+      const samePlaceholders =
+        JSON.stringify([...placeholders(source)].sort()) === JSON.stringify([...placeholders(target)].sort());
+      const sameTags = JSON.stringify(tags(source)) === JSON.stringify(tags(target));
+      return samePlaceholders && sameTags ? [] : [key];
+    });
+    expect(drifted).toEqual([]);
+  });
+
+  it("translates a sentence that is not a proper noun", () => {
+    expect(translatedKeys.get("shell.sidebarAccountMenu.logout")).not.toBe(en.shell.sidebarAccountMenu.logout);
+    expect(language).toMatch(/^(it|es)$/);
   });
 });

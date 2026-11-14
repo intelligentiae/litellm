@@ -7,7 +7,10 @@ export type LanguageStore = { readonly read: () => string | null; readonly write
 export const DEFAULT_LANGUAGE = "en";
 export const LANGUAGE_STORAGE_KEY = "litellm_language";
 
-export const LOCALES: Locales = new Map();
+export const LOCALES: Locales = new Map([
+  ["it", () => import("./locales/it.json").then((module) => module.default)],
+  ["es", () => import("./locales/es.json").then((module) => module.default)],
+]);
 
 export const browserLanguageStore: LanguageStore = {
   read: () => getLocalStorageItem(LANGUAGE_STORAGE_KEY),
