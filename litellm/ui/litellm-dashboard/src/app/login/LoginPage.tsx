@@ -197,7 +197,7 @@ function LoginPageContent() {
   // Show disabled message if admin UI is disabled
   if (uiConfig && uiConfig.admin_ui_disabled) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted">
+      <div className="min-h-screen flex items-center justify-center bg-brand-page">
         <Card className="w-full max-w-lg shadow-md">
           <CardContent>
             <div className="flex w-full flex-col gap-4">
@@ -223,7 +223,7 @@ function LoginPageContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted">
+    <div className="min-h-screen flex items-center justify-center bg-brand-page">
       <Card className="w-full max-w-lg shadow-md">
         <CardContent>
           <TooltipProvider>
