@@ -1551,6 +1551,22 @@ class TestProxySettingEndpoints:
         assert values["logo_url"] == "https://cdn.example.com/logo.png"
         assert values["favicon_url"] == "https://cdn.example.com/favicon.ico"
 
+    def test_get_ui_theme_settings_reads_project_name_from_process_env(self, mock_proxy_config, monkeypatch):
+        monkeypatch.setenv("LITELLM_PROJECT_NAME", "Intelligo")
+
+        response = client.get("/get/ui_theme_settings")
+
+        assert response.status_code == 200
+        assert response.json()["values"]["project_name"] == "Intelligo"
+
+    def test_get_ui_theme_settings_uses_litellm_when_project_name_is_unset(self, mock_proxy_config, monkeypatch):
+        monkeypatch.delenv("LITELLM_PROJECT_NAME", raising=False)
+
+        response = client.get("/get/ui_theme_settings")
+
+        assert response.status_code == 200
+        assert response.json()["values"]["project_name"] == "LiteLLM"
+
     @pytest.mark.parametrize("env_logo", [
         "https://env.example.com/logo.png", "/mnt/secret/internal/logo.png",
     ])

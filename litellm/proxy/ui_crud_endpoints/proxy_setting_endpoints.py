@@ -149,6 +149,9 @@ _UI_THEME_FIELD_ENV_VARS: Final[dict[str, str]] = {
     "logo_url_dark": "UI_LOGO_PATH_DARK",
     "favicon_url": "LITELLM_FAVICON_URL",
 }
+_PROJECT_NAME_ENV: Final = "LITELLM_PROJECT_NAME"
+_DEFAULT_PROJECT_NAME: Final = "LiteLLM"
+_PROJECT_NAME_MAX: Final = 64
 
 
 def _is_public_http_url(value: str | None) -> bool:
@@ -180,6 +183,25 @@ def _resolve_ui_theme_field(stored_values: Mapping[str, object], field_name: str
     return env_value if _is_public_http_url(env_value) else None
 
 
+def _display_project_name(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+    cleaned: Final = " ".join(value.split())
+    if not cleaned or len(cleaned) > _PROJECT_NAME_MAX:
+        return None
+    if any(ord(character) < 32 or character in "<>" for character in cleaned):
+        return None
+    return cleaned
+
+
+def _resolve_project_name(stored_values: Mapping[str, object]) -> str:
+    stored: Final = _display_project_name(stored_values.get("project_name"))
+    if stored is not None:
+        return stored
+    from_env: Final = _display_project_name(os.getenv(_PROJECT_NAME_ENV))
+    return from_env if from_env is not None else _DEFAULT_PROJECT_NAME
+
+
 class IPAddress(LiteLLMBaseModel):
     ip: str
 
@@ -205,6 +227,11 @@ class UIThemeConfig(LiteLLMBaseModel):
     favicon_url: str | None = Field(
         default=None,
         description="URL to custom favicon image. Must be an HTTP/HTTPS URL to a .ico, .png, or .svg file",
+    )
+
+    project_name: str | None = Field(
+        default=None,
+        description="Name shown beside the favicon. Falls back to LITELLM_PROJECT_NAME, then LiteLLM.",
     )
 
 
@@ -1517,6 +1544,7 @@ async def get_ui_theme_settings() -> UIThemeSettingsResponse:
     values: Final = {
         **result.values,
         **{field: _resolve_ui_theme_field(result.values, field) for field in _UI_THEME_FIELD_ENV_VARS},
+        "project_name": _resolve_project_name(result.values),
     }
     return UIThemeSettingsResponse(
         values=values,
@@ -1573,6 +1601,12 @@ async def update_ui_theme_settings(
     _validate_public_image_url(theme_config.logo_url, "logo_url")
     _validate_public_image_url(theme_config.logo_url_dark, "logo_url_dark")
     _validate_public_image_url(theme_config.favicon_url, "favicon_url")
+    if "project_name" in theme_config.model_fields_set and _display_project_name(theme_config.project_name) is None:
+        if theme_config.project_name not in (None, ""):
+            raise HTTPException(
+                status_code=400,
+                detail={"error": "Invalid project_name: use a short name without control characters."},
+            )
 
     if store_model_in_db is not True:
         raise HTTPException(
@@ -1601,10 +1635,16 @@ async def update_ui_theme_settings(
     def _clean(url: str | None) -> str | None:
         return url if url is not None and url.strip() else None
 
+    project_name_update: Final[dict[str, str | None]] = (
+        {"LITELLM_PROJECT_NAME": _display_project_name(theme_config.project_name)}
+        if "project_name" in theme_config.model_fields_set
+        else {}
+    )
     env_updates: Final[dict[str, str | None]] = {
         "UI_LOGO_PATH": _clean(theme_config.logo_url),
         "UI_LOGO_PATH_DARK": _clean(theme_config.logo_url_dark),
         "LITELLM_FAVICON_URL": _clean(theme_config.favicon_url),
+        **project_name_update,
     }
     for env_key, env_value in env_updates.items():
         if env_value is not None:

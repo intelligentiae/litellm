@@ -23,7 +23,7 @@ import { ChevronsUpDown, Crown, IdCard, KeyRound, LogOut, Mail, ShieldCheck } fr
 import { useRouter } from "next/navigation";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { productNames } from "@/i18n/untranslated/productNames";
+import { useProductBrand } from "@/components/ProductWordmark";
 
 const RELEASE_NOTES_URL = "https://docs.litellm.ai/release_notes";
 
@@ -155,6 +155,7 @@ const SidebarAccountMenu: React.FC<SidebarAccountMenuProps> = ({ onLogout, colla
   const initials = initialsFromIdentity(userEmail, userId);
   const hue = hueFromString(seed);
   const displayName = navAccountDisplayName(userEmail, userId);
+  const { projectName } = useProductBrand();
   const triggerLabel = t("shell.sidebarAccountMenu.triggerLabel", {
     role: userRole ?? t("shell.sidebarAccountMenu.unknownRole"),
     identity: userEmail || userId || t("shell.sidebarAccountMenu.unknownIdentity"),
@@ -194,7 +195,7 @@ const SidebarAccountMenu: React.FC<SidebarAccountMenuProps> = ({ onLogout, colla
         data-testid="sidebar-account-menu-panel"
       >
         <div className="flex items-center gap-2 border-b border-border px-3 py-3">
-          <span className="text-[15px] font-bold tracking-tight text-foreground">{productNames.liteLLM}</span>
+          <span className="text-[15px] font-bold tracking-tight text-foreground">{projectName}</span>
           {!disableBouncingIcon && (
             <span
               className="animate-bounce text-lg leading-none"

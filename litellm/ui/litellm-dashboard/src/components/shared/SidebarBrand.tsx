@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { SidebarHeader } from "@/components/shared/Sidebar";
 import { uiHref } from "@/utils/uiHref";
 import { cn } from "@/lib/cva.config";
-import { productNames } from "@/i18n/untranslated/productNames";
+import { useProductBrand } from "@/components/ProductWordmark";
 
 const LOGO_CLASS_NAME =
   "h-5 w-auto max-w-[150px] object-contain group-data-[collapsed=true]/sidebar:h-6 group-data-[collapsed=true]/sidebar:w-6";
@@ -39,6 +39,7 @@ export function SidebarBrand({
 }) {
   const { t } = useTranslation();
   const { logoUrl, logoUrlDark } = useTheme();
+  const { projectName } = useProductBrand();
   const [erroredDarkLogo, setErroredDarkLogo] = useState<string | null>(null);
   const { data: healthData } = useHealthReadinessDetails(accessToken);
   const version = healthData?.litellm_version;
@@ -51,7 +52,7 @@ export function SidebarBrand({
       <div className="flex items-center justify-between gap-2 group-data-[collapsed=true]/sidebar:flex-col group-data-[collapsed=true]/sidebar:gap-1">
         <div className="flex min-w-0 items-center gap-2">
           <Link href={homeHref} onClick={onHomeClick} className="flex min-w-0 items-center" aria-label={homeLabel}>
-            <img src={logoSrc} alt={productNames.liteLLM} className={cn(LOGO_CLASS_NAME, "dark:hidden")} />
+            <img src={logoSrc} alt={projectName} className={cn(LOGO_CLASS_NAME, "dark:hidden")} />
             <img
               src={darkLogoSrc}
               alt=""
