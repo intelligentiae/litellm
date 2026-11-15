@@ -1,4 +1,4 @@
-import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../tests/test-utils";
@@ -175,7 +175,7 @@ describe("Sidebar (leftnav)", () => {
   it("should link the logo to the UI home route rather than the proxy origin", () => {
     renderWithProviders(<Sidebar {...defaultProps} />);
 
-    expect(screen.getByRole("link", { name: /litellm home/i })).toHaveAttribute("href", "/ui");
+    expect(screen.getByRole("link", { name: (name: string) => name === "home" })).toHaveAttribute("href", "/ui");
   });
 
   it("should make customer organizations reachable from the Customer Portal sidebar", () => {
@@ -194,7 +194,9 @@ describe("Sidebar (leftnav)", () => {
   it("pairs the logo with a dark-mode variant that swaps on the dark class", () => {
     renderWithProviders(<Sidebar {...defaultProps} />);
 
-    const [light, dark] = Array.from(screen.getByRole("link", { name: /litellm home/i }).querySelectorAll("img"));
+    const [light, dark] = Array.from(
+      screen.getByRole("link", { name: (name: string) => name === "home" }).querySelectorAll("img"),
+    );
     const classesOf = (el: Element) => new Set(el.className.split(/\s+/));
 
     const lightSrc = light.getAttribute("src") ?? "";
@@ -207,11 +209,8 @@ describe("Sidebar (leftnav)", () => {
   });
 
   const collapsedLogos = () => {
-    const home = within(screen.getByRole("link", { name: /litellm home/i }));
-    return {
-      light: home.getByRole("img", { name: "LiteLLM" }),
-      dark: home.getByRole("presentation", { hidden: true }),
-    };
+    const [light, dark] = screen.getByRole("link", { name: (name: string) => name === "home" }).querySelectorAll("img");
+    return { light, dark };
   };
 
   it("requests the bundled monogram for both themes when collapsed", () => {
@@ -245,7 +244,9 @@ describe("Sidebar (leftnav)", () => {
     });
     renderWithProviders(<Sidebar {...defaultProps} />);
 
-    const [light, dark] = Array.from(screen.getByRole("link", { name: /litellm home/i }).querySelectorAll("img"));
+    const [light, dark] = Array.from(
+      screen.getByRole("link", { name: (name: string) => name === "home" }).querySelectorAll("img"),
+    );
 
     expect(light).toHaveAttribute("src", "https://cdn.example.com/logo.png");
     expect(dark).toHaveAttribute("src", "https://cdn.example.com/logo-dark.png");
@@ -255,7 +256,9 @@ describe("Sidebar (leftnav)", () => {
     mockUseThemeImpl = () => ({ ...unbrandedTheme(), logoUrl: "https://cdn.example.com/logo.png" });
     renderWithProviders(<Sidebar {...defaultProps} />);
 
-    const [light, dark] = Array.from(screen.getByRole("link", { name: /litellm home/i }).querySelectorAll("img"));
+    const [light, dark] = Array.from(
+      screen.getByRole("link", { name: (name: string) => name === "home" }).querySelectorAll("img"),
+    );
 
     expect(light).toHaveAttribute("src", "https://cdn.example.com/logo.png");
     expect(dark).toHaveAttribute("src", "https://cdn.example.com/logo.png");
@@ -269,7 +272,9 @@ describe("Sidebar (leftnav)", () => {
     });
     renderWithProviders(<Sidebar {...defaultProps} />);
 
-    const [, dark] = Array.from(screen.getByRole("link", { name: /litellm home/i }).querySelectorAll("img"));
+    const [, dark] = Array.from(
+      screen.getByRole("link", { name: (name: string) => name === "home" }).querySelectorAll("img"),
+    );
     expect(dark).toHaveAttribute("src", "https://cdn.example.com/gone.png");
 
     fireEvent.error(dark);

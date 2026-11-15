@@ -3,6 +3,8 @@
 import { ChevronDown, ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { brandVisibleCopy, readVisibleProjectName } from "@/i18n/projectBrand";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -88,7 +90,9 @@ export function HubHeader({ info, status, tab }: { info: HubInfo | undefined; st
   return (
     <header className={styles.header}>
       <div>
-        <p className={styles.eyebrow}>{info?.docs_title || t("publicModelHub.catalog.eyebrow")}</p>
+        <p className={styles.eyebrow}>
+          {brandVisibleCopy(info?.docs_title || t("publicModelHub.catalog.eyebrow"), readVisibleProjectName())}
+        </p>
         <h1 className={styles.title}>
           {t(tab === "skills" ? "publicModelHub.catalog.skillsHub" : "publicModelHub.catalog.modelHub")}
         </h1>

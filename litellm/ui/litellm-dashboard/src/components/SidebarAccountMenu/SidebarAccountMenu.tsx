@@ -195,7 +195,9 @@ const SidebarAccountMenu: React.FC<SidebarAccountMenuProps> = ({ onLogout, colla
         data-testid="sidebar-account-menu-panel"
       >
         <div className="flex items-center gap-2 border-b border-border px-3 py-3">
-          <span className="text-[15px] font-bold tracking-tight text-foreground">{projectName}</span>
+          {projectName ? (
+            <span className="text-[15px] font-bold tracking-tight text-foreground">{projectName}</span>
+          ) : null}
           {!disableBouncingIcon && (
             <span
               className="animate-bounce text-lg leading-none"

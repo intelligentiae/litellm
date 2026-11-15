@@ -150,7 +150,7 @@ _UI_THEME_FIELD_ENV_VARS: Final[dict[str, str]] = {
     "favicon_url": "LITELLM_FAVICON_URL",
 }
 _PROJECT_NAME_ENV: Final = "LITELLM_PROJECT_NAME"
-_DEFAULT_PROJECT_NAME: Final = "LiteLLM"
+_UNBRANDED_PROJECT_NAME: Final = "LiteLLM"
 _PROJECT_NAME_MAX: Final = 64
 
 
@@ -196,10 +196,12 @@ def _display_project_name(value: object) -> str | None:
 
 def _resolve_project_name(stored_values: Mapping[str, object]) -> str:
     stored: Final = _display_project_name(stored_values.get("project_name"))
-    if stored is not None:
+    if stored is not None and stored != _UNBRANDED_PROJECT_NAME:
         return stored
     from_env: Final = _display_project_name(os.getenv(_PROJECT_NAME_ENV))
-    return from_env if from_env is not None else _DEFAULT_PROJECT_NAME
+    if from_env is not None and from_env != _UNBRANDED_PROJECT_NAME:
+        return from_env
+    return ""
 
 
 class IPAddress(LiteLLMBaseModel):
@@ -231,7 +233,7 @@ class UIThemeConfig(LiteLLMBaseModel):
 
     project_name: str | None = Field(
         default=None,
-        description="Name shown beside the favicon. Falls back to LITELLM_PROJECT_NAME, then LiteLLM.",
+        description="Name shown beside the favicon. Falls back to LITELLM_PROJECT_NAME. Blank when neither is set.",
     )
 
 

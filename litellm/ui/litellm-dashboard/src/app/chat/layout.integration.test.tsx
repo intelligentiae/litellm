@@ -1,6 +1,6 @@
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { renderWithProviders, screen, testQueryClient, within } from "@/../tests/test-utils";
+import { renderWithProviders, screen, testQueryClient } from "@/../tests/test-utils";
 import { setServerRootPath } from "@/lib/serverRootPath";
 import { getProxyBaseUrl } from "@/components/networking";
 import ChatLayout from "./layout";
@@ -108,8 +108,7 @@ describe("Chat layout product navigation", () => {
 
       await user.click(screen.getByRole("button", { name: "Open chat navigation" }));
       const logo = await screen.findByRole("link", { name: "Chat home" });
-      const light = within(logo).getByAltText("LiteLLM");
-      const dark = within(logo).getByAltText("");
+      const [light, dark] = logo.querySelectorAll("img");
       const source = (path: string) => (path.startsWith("/") ? `${getProxyBaseUrl()}${path}` : path);
       expect(light).toHaveAttribute("src", source(lightSource));
       expect(dark).toHaveAttribute("src", source(darkSource));
@@ -128,7 +127,10 @@ describe("Chat layout product navigation", () => {
 
     await user.click(screen.getByRole("button", { name: "Open chat navigation" }));
     expect(await screen.findByRole("dialog", { name: "LiteLLM Chat" })).toBeInTheDocument();
-    expect(screen.getByAltText("LiteLLM")).toHaveAttribute("src", `${getProxyBaseUrl()}/get_image`);
+    expect(screen.getByRole("link", { name: "Chat home" }).querySelector("img")).toHaveAttribute(
+      "src",
+      `${getProxyBaseUrl()}/get_image`,
+    );
   });
 
   it.each([

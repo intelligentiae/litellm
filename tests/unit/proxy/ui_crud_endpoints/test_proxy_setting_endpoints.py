@@ -1559,13 +1559,16 @@ class TestProxySettingEndpoints:
         assert response.status_code == 200
         assert response.json()["values"]["project_name"] == "Intelligo"
 
-    def test_get_ui_theme_settings_uses_litellm_when_project_name_is_unset(self, mock_proxy_config, monkeypatch):
+    @pytest.mark.parametrize("raw", [None, "LiteLLM", "  LiteLLM  "])
+    def test_get_ui_theme_settings_omits_the_litellm_name(self, mock_proxy_config, monkeypatch, raw):
         monkeypatch.delenv("LITELLM_PROJECT_NAME", raising=False)
+        if raw is not None:
+            monkeypatch.setenv("LITELLM_PROJECT_NAME", raw)
 
         response = client.get("/get/ui_theme_settings")
 
         assert response.status_code == 200
-        assert response.json()["values"]["project_name"] == "LiteLLM"
+        assert response.json()["values"]["project_name"] == ""
 
     @pytest.mark.parametrize("env_logo", [
         "https://env.example.com/logo.png", "/mnt/secret/internal/logo.png",

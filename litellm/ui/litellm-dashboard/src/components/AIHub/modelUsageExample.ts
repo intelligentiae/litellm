@@ -1,4 +1,5 @@
 import { isDecisionMode } from "@/lib/decisionModels";
+import { brandVisibleCopy, readVisibleProjectName } from "@/i18n/projectBrand";
 
 const chatCompletionsExample = (baseUrl: string, model: string): string => `import openai
 
@@ -61,10 +62,11 @@ export const modelUsageExample = (
   model: string,
   keyHeaderName: string,
 ): string => {
-  if (mode === "extraction") {
-    return extractionExample(baseUrl, model, keyHeaderName);
-  }
-  return isDecisionMode(mode)
-    ? systemOneExample(baseUrl, model, keyHeaderName)
-    : chatCompletionsExample(baseUrl, model);
+  const example =
+    mode === "extraction"
+      ? extractionExample(baseUrl, model, keyHeaderName)
+      : isDecisionMode(mode)
+        ? systemOneExample(baseUrl, model, keyHeaderName)
+        : chatCompletionsExample(baseUrl, model);
+  return brandVisibleCopy(example, readVisibleProjectName());
 };

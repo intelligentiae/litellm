@@ -18,24 +18,28 @@ describe("productBrandFromTheme", () => {
     });
   });
 
-  it("keeps LiteLLM and no mark when the proxy has neither setting", () => {
-    expect(productBrandFromTheme({ values: {} })).toEqual({ projectName: "LiteLLM", faviconUrl: null });
+  it("leaves the name blank when the proxy has no project name", () => {
+    expect(productBrandFromTheme({ values: {} })).toEqual({ projectName: "", faviconUrl: null });
     expect(productBrandFromTheme({ values: { favicon_url: "/etc/passwd", project_name: "  " } })).toEqual({
-      projectName: "LiteLLM",
+      projectName: "",
+      faviconUrl: null,
+    });
+    expect(productBrandFromTheme({ values: { project_name: "LiteLLM" } })).toEqual({
+      projectName: "",
       faviconUrl: null,
     });
   });
 });
 
 describe("ProductWordmark", () => {
-  it("shows the favicon beside the project name", () => {
+  it("shows nothing until a project name is configured", () => {
     render(
       <ProductBrandProvider>
         <ProductWordmark />
       </ProductBrandProvider>,
     );
 
-    expect(screen.getByText("LiteLLM")).toBeInTheDocument();
+    expect(screen.queryByText("LiteLLM")).not.toBeInTheDocument();
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
 });

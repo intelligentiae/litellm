@@ -13,6 +13,8 @@ import { SidebarHeader } from "@/components/shared/Sidebar";
 import { uiHref } from "@/utils/uiHref";
 import { cn } from "@/lib/cva.config";
 import { useProductBrand } from "@/components/ProductWordmark";
+import { brandVisibleCopy } from "@/i18n/projectBrand";
+import { productNames } from "@/i18n/untranslated/productNames";
 
 const LOGO_CLASS_NAME =
   "h-5 w-auto max-w-[150px] object-contain group-data-[collapsed=true]/sidebar:h-6 group-data-[collapsed=true]/sidebar:w-6";
@@ -25,7 +27,7 @@ function bundledLogoSrc(baseUrl: string, { dark, monogram }: { dark: boolean; mo
 export function SidebarBrand({
   accessToken,
   homeHref = uiHref(""),
-  homeLabel = "LiteLLM home",
+  homeLabel,
   collapsed = false,
   onToggleCollapsed,
   onHomeClick,
@@ -40,6 +42,7 @@ export function SidebarBrand({
   const { t } = useTranslation();
   const { logoUrl, logoUrlDark } = useTheme();
   const { projectName } = useProductBrand();
+  const resolvedHomeLabel = brandVisibleCopy(homeLabel ?? `${productNames.liteLLM} home`, projectName);
   const [erroredDarkLogo, setErroredDarkLogo] = useState<string | null>(null);
   const { data: healthData } = useHealthReadinessDetails(accessToken);
   const version = healthData?.litellm_version;
@@ -51,7 +54,12 @@ export function SidebarBrand({
     <SidebarHeader className="h-14 border-b border-border group-data-[collapsed=true]/sidebar:h-auto group-data-[collapsed=true]/sidebar:py-2">
       <div className="flex items-center justify-between gap-2 group-data-[collapsed=true]/sidebar:flex-col group-data-[collapsed=true]/sidebar:gap-1">
         <div className="flex min-w-0 items-center gap-2">
-          <Link href={homeHref} onClick={onHomeClick} className="flex min-w-0 items-center" aria-label={homeLabel}>
+          <Link
+            href={homeHref}
+            onClick={onHomeClick}
+            className="flex min-w-0 items-center"
+            aria-label={resolvedHomeLabel}
+          >
             <img src={logoSrc} alt={projectName} className={cn(LOGO_CLASS_NAME, "dark:hidden")} />
             <img
               src={darkLogoSrc}

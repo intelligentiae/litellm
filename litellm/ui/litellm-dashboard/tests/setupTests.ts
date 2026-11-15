@@ -3,6 +3,7 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
 import "@/i18n/i18n";
+import { setVisibleProjectName } from "@/i18n/projectBrand";
 
 const ensureTestLocalStorage = () => {
   if (typeof window === "undefined" || typeof window.Storage === "undefined") {
@@ -135,6 +136,7 @@ const releaseBaseUiScrollLock = () => {
 afterEach(() => {
   cleanup();
   releaseBaseUiScrollLock();
+  setVisibleProjectName(null);
 });
 
 // Make toLocaleString deterministic in tests; individual tests can override

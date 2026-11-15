@@ -1,4 +1,5 @@
 import type { ParseKeys } from "i18next";
+import { brandVisibleCopy, readVisibleProjectName } from "@/i18n/projectBrand";
 import { getProviderLogoAndName, Providers, providerLogoMap } from "@/components/provider_info_helpers";
 import awsLogo from "../../public/assets/logos/aws.svg";
 import milvusLogo from "../../public/assets/logos/milvus.svg";
@@ -420,7 +421,10 @@ export const getVectorStoreProviderLogoAndName = (providerValue: string): { logo
     return getProviderLogoAndName(providerValue);
   }
   const displayName = VectorStoreProviders[enumKey as keyof typeof VectorStoreProviders];
-  return { logo: vectorStoreProviderLogoMap[displayName], displayName };
+  return {
+    logo: vectorStoreProviderLogoMap[displayName],
+    displayName: brandVisibleCopy(displayName, readVisibleProjectName()),
+  };
 };
 
 export const getProviderSpecificFields = (providerValue: string): VectorStoreFieldConfig[] => {

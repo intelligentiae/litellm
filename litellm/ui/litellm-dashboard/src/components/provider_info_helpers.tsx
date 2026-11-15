@@ -1,4 +1,5 @@
 import { resolveLogoSrc } from "@/lib/assetPaths";
+import { brandVisibleCopy, readVisibleProjectName } from "@/i18n/projectBrand";
 import a2aAgentLogo from "../../public/assets/logos/a2a_agent.png";
 import ai21Logo from "../../public/assets/logos/ai21.svg";
 import aiandLogo from "../../public/assets/logos/aiand.svg";
@@ -462,15 +463,19 @@ export const providerLogoMap: Partial<Record<Providers, string>> = {
 };
 
 export const getProviderLogoAndName = (providerValue: string): { logo: string; displayName: string } => {
+  const present = (logo: string, displayName: string): { logo: string; displayName: string } => ({
+    logo,
+    displayName: brandVisibleCopy(displayName, readVisibleProjectName()),
+  });
   if (!providerValue) {
-    return { logo: "", displayName: "-" };
+    return present("", "-");
   }
 
   // Handle special case for "gemini" provider value
   if (providerValue.toLowerCase() === "gemini") {
     const displayName = Providers.Google_AI_Studio;
     const logo = resolveLogoSrc(providerLogoMap[displayName]) ?? "";
-    return { logo, displayName };
+    return present(logo, displayName);
   }
 
   // Resolve by the litellm provider slug (e.g. "bedrock_mantle"); fall back to
@@ -481,14 +486,13 @@ export const getProviderLogoAndName = (providerValue: string): { logo: string; d
     Object.keys(provider_map).find((key) => key.toLowerCase() === providerValue.toLowerCase());
 
   if (!enumKey) {
-    return { logo: "", displayName: providerValue };
+    return present("", providerValue);
   }
 
-  // Get the display name from Providers enum and logo from map
   const displayName = Providers[enumKey as keyof typeof Providers];
   const logo = resolveLogoSrc(providerLogoMap[displayName]) ?? "";
 
-  return { logo, displayName };
+  return present(logo, displayName);
 };
 
 const providerPlaceholderMap: Partial<Record<Providers, string>> = {

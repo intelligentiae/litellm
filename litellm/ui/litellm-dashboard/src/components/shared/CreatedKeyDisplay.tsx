@@ -8,6 +8,7 @@ import { getProxyBaseUrl } from "@/components/networking";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/toast";
 import { productNames } from "@/i18n/untranslated/productNames";
+import { brandVisibleCopy, readVisibleProjectName } from "@/i18n/projectBrand";
 
 interface CreatedKeyDisplayProps {
   apiKey: string;
@@ -19,7 +20,7 @@ export const buildAgentInstructions = (baseUrl: string, apiKey: string): string 
     "LiteLLM is a gateway that exposes OpenAI and Anthropic compatible APIs. " +
     `Send the virtual key as a Bearer token (Authorization: Bearer ${apiKey}) to:`;
 
-  return [
+  const instructions = [
     "Use this LiteLLM AI gateway for model inference.",
     "",
     `Gateway URL: ${normalizedBaseUrl}`,
@@ -36,6 +37,7 @@ export const buildAgentInstructions = (baseUrl: string, apiKey: string): string 
     "",
     "Docs for everything else LiteLLM supports: https://docs.litellm.ai/docs/",
   ].join("\n");
+  return brandVisibleCopy(instructions, readVisibleProjectName());
 };
 
 /**

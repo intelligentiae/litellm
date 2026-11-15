@@ -24,6 +24,8 @@ import {
 import { getGatewayBaseUrl, getProxyBaseUrl } from "@/components/networking";
 import { copyToClipboard as utilCopyToClipboard } from "@/utils/dataUtils";
 import { productNames } from "@/i18n/untranslated/productNames";
+import { brandVisibleCopy } from "@/i18n/projectBrand";
+import { useProductBrand } from "@/components/ProductWordmark";
 import { codeSamples } from "@/i18n/untranslated/codeSamples";
 
 interface CodeBlockProps {
@@ -155,6 +157,8 @@ interface MCPConnectProps {
 const MCPConnect: React.FC<MCPConnectProps> = ({ currentServerAccessGroups = [] }) => {
   const term = useTerminology();
   const { t } = useTranslation();
+  const { projectName } = useProductBrand();
+  const proxyLabel = brandVisibleCopy(productNames.liteLLMProxy, projectName);
   const proxyBaseUrl = getProxyBaseUrl();
   const gatewayBaseUrl = getGatewayBaseUrl();
   const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
@@ -532,7 +536,7 @@ const MCPConnect: React.FC<MCPConnectProps> = ({ currentServerAccessGroups = [] 
               <TabsTrigger value="litellm" className="flex-none px-6 py-3">
                 <span className="flex items-center gap-2 font-medium">
                   <Zap size={18} />
-                  {productNames.liteLLMProxy}
+                  {proxyLabel}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="cursor" className="flex-none px-6 py-3">

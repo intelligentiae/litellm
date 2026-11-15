@@ -16,8 +16,8 @@ import I18nProvider from "@/i18n/I18nProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "LiteLLM Dashboard",
-  description: "LiteLLM Proxy Admin UI",
+  title: "Dashboard",
+  description: "Proxy Admin UI",
   icons: { icon: "/get_favicon" },
 };
 

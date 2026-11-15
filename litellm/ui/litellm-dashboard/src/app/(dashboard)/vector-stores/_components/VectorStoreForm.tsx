@@ -18,6 +18,7 @@ import { Logo } from "@/components/molecules/logo/Logo";
 import { fetchAvailableModels, ModelGroup } from "@/components/llm_calls/fetch_models";
 import { toast } from "@/lib/toast";
 import i18n from "@/i18n/i18n";
+import { brandVisibleCopy, readVisibleProjectName } from "@/i18n/projectBrand";
 import { FieldGroup } from "@/components/ui/field";
 import { FormField } from "@/components/shared/form/FormField";
 import { Button } from "@/components/ui/button";
@@ -351,16 +352,19 @@ const VectorStoreForm: React.FC<VectorStoreFormProps> = ({
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(VectorStoreProviders).map(([providerEnum, providerDisplayName]) => (
-                        <SelectItem key={providerEnum} value={vectorStoreProviderMap[providerEnum]}>
-                          <Logo
-                            src={vectorStoreProviderLogoMap[providerDisplayName]}
-                            label={providerDisplayName}
-                            className="w-5 h-5"
-                          />
-                          <span>{providerDisplayName}</span>
-                        </SelectItem>
-                      ))}
+                      {Object.entries(VectorStoreProviders).map(([providerEnum, providerDisplayName]) => {
+                        const label = brandVisibleCopy(providerDisplayName, readVisibleProjectName());
+                        return (
+                          <SelectItem key={providerEnum} value={vectorStoreProviderMap[providerEnum]}>
+                            <Logo
+                              src={vectorStoreProviderLogoMap[providerDisplayName]}
+                              label={label}
+                              className="w-5 h-5"
+                            />
+                            <span>{label}</span>
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 )}

@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
+import { brandVisibleCopy, readVisibleProjectName } from "@/i18n/projectBrand";
 import { CircleCheck, CircleHelp, Inbox, X } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/shared/Alert";
@@ -101,6 +102,11 @@ interface CreateVectorStoreProps {
 
 const CreateVectorStore: React.FC<CreateVectorStoreProps> = ({ accessToken, onSuccess }) => {
   const { t } = useTranslation();
+  const brandedProviderItems = providerItems.map((item) => ({
+    value: item.value,
+    rawLabel: item.label,
+    label: brandVisibleCopy(item.label, readVisibleProjectName()),
+  }));
   const [documents, setDocuments] = useState<DocumentUpload[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<string>("bedrock");
@@ -367,7 +373,7 @@ const CreateVectorStore: React.FC<CreateVectorStoreProps> = ({ accessToken, onSu
                   )}
                 </FieldLabel>
                 <Select
-                  items={providerItems}
+                  items={brandedProviderItems}
                   value={selectedProvider}
                   onValueChange={(value: string | null) => value !== null && setSelectedProvider(value)}
                 >
@@ -375,9 +381,9 @@ const CreateVectorStore: React.FC<CreateVectorStoreProps> = ({ accessToken, onSu
                     <SelectValue placeholder={t("vectorStores.create.fields.providerPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    {providerItems.map((item) => (
+                    {brandedProviderItems.map((item) => (
                       <SelectItem key={item.value} value={item.value}>
-                        <Logo src={vectorStoreProviderLogoMap[item.label]} label={item.label} className="w-5 h-5" />
+                        <Logo src={vectorStoreProviderLogoMap[item.rawLabel]} label={item.label} className="w-5 h-5" />
                         <span>{item.label}</span>
                       </SelectItem>
                     ))}
