@@ -5,8 +5,9 @@ import { Trans, useTranslation } from "react-i18next";
 import BetaBadge from "@/components/BetaBadge";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useLanguageSettings } from "@/i18n/languageSettings";
 import {
-  browserLanguageStore,
+  createLanguageStore,
   DEFAULT_LANGUAGE,
   englishName,
   LanguageStore,
@@ -27,16 +28,18 @@ type LanguageFieldProps = {
 
 export default function LanguageField({
   locales = LOCALES,
-  store = browserLanguageStore,
+  store,
   reload = () => window.location.reload(),
 }: LanguageFieldProps) {
   const { t, i18n } = useTranslation();
+  const settings = useLanguageSettings();
+  const activeStore = store ?? createLanguageStore(settings.storageKey);
   const languages = supportedLanguages(locales);
   if (languages.length < 2) return null;
 
   const choose = (language: string | null) => {
     if (language === null || language === i18n.language) return;
-    store.write(language);
+    activeStore.write(language);
     reload();
   };
 

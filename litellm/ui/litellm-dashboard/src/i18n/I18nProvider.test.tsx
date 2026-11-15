@@ -5,7 +5,7 @@ import { I18nextProvider, initReactI18next, useTranslation } from "react-i18next
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { LanguageGate } from "./I18nProvider";
-import { Locales, Messages } from "./languages";
+import { LanguageConfig, Locales, Messages } from "./languages";
 import en from "./locales/en.json";
 
 const JAPANESE_LOGOUT = "ログアウト";
@@ -37,11 +37,16 @@ function AccountMenuLabels() {
   );
 }
 
-const renderGate = (stored: string | null, locales: Locales) => {
+const renderGate = (stored: string | null, locales: Locales, loadConfig?: () => Promise<LanguageConfig>) => {
   const instance = createI18n();
   render(
     <I18nextProvider i18n={instance}>
-      <LanguageGate i18n={instance} locales={locales} store={{ read: () => stored, write: vi.fn() }}>
+      <LanguageGate
+        i18n={instance}
+        locales={locales}
+        store={{ read: () => stored, write: vi.fn() }}
+        loadConfig={loadConfig}
+      >
         <AccountMenuLabels />
       </LanguageGate>
     </I18nextProvider>,
@@ -70,6 +75,16 @@ describe("LanguageGate", () => {
     expect(screen.getByTestId("logout")).toHaveTextContent(en.shell.sidebarAccountMenu.logout);
     expect(load).not.toHaveBeenCalled();
     expect(document.documentElement.lang).toBe("en");
+  });
+
+  it("uses the language configured on the proxy when nothing is stored", async () => {
+    renderGate(null, new Map([["ja", async () => japanese]]), async () => ({
+      defaultLanguage: "ja",
+      storageKey: "intelligo_language",
+    }));
+
+    expect(await screen.findByTestId("logout")).toHaveTextContent(JAPANESE_LOGOUT);
+    expect(document.documentElement.lang).toBe("ja");
   });
 
   it("falls back to English when the translations fail to load", async () => {

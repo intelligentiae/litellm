@@ -2,7 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { englishName, Locales, nativeName } from "@/i18n/languages";
+import { builtinLanguageConfig, englishName, Locales, nativeName } from "@/i18n/languages";
+import { LanguageSettingsProvider } from "@/i18n/languageSettings";
 
 import LanguageField from "./LanguageField";
 
@@ -35,6 +36,21 @@ describe("LanguageField", () => {
     expect(japanese).toHaveTextContent(englishName("ja"));
     expect(screen.getByRole("option", { name: new RegExp(nativeName("es")) })).toHaveTextContent(englishName("es"));
     expect(screen.getByRole("option", { name: nativeName("en") })).toBeInTheDocument();
+  });
+
+  it("still names other languages in English when the proxy default is not English", async () => {
+    render(
+      <LanguageSettingsProvider value={{ ...builtinLanguageConfig, defaultLanguage: "ja" }}>
+        <LanguageField locales={locales} store={{ read: () => null, write: vi.fn() }} reload={vi.fn()} />
+      </LanguageSettingsProvider>,
+    );
+
+    await userEvent.click(screen.getByRole("combobox", { name: /Language/ }));
+
+    const english = await screen.findByRole("option", { name: nativeName("en") });
+    expect(english.textContent?.replace(/\s+/g, " ").trim()).toBe(nativeName("en"));
+    expect(screen.getByRole("option", { name: new RegExp(nativeName("ja")) })).toHaveTextContent(englishName("ja"));
+    expect(screen.getByRole("option", { name: new RegExp(nativeName("es")) })).toHaveTextContent(englishName("es"));
   });
 
   it("links the fallback note to where translations live", () => {
