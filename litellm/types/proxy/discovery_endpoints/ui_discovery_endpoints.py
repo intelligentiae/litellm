@@ -16,4 +16,6 @@ class UiDiscoveryEndpoints(LiteLLMBaseModel):
     mcp_stdio_enabled: bool = False
     use_si_terminology: bool = False
     claude_code_marketplace_auth_required: bool = False
+    default_language: str = "en"
+    language_storage_key: str = "litellm_language"
     workers: list[WorkerRegistryEntry] = Field(default=[])

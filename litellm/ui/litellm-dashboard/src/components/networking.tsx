@@ -427,6 +427,8 @@ export interface LiteLLMWellKnownUiConfig {
   workers?: WorkerInfo[];
   mcp_stdio_enabled?: boolean;
   use_si_terminology?: boolean;
+  default_language?: string;
+  language_storage_key?: string;
 }
 
 export interface CredentialsResponse {

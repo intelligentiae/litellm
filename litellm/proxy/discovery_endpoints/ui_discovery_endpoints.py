@@ -1,5 +1,6 @@
 #### Analytics Endpoints #####
 import os
+import re
 from typing import Final
 
 from fastapi import APIRouter
@@ -12,6 +13,22 @@ from litellm.types.proxy.discovery_endpoints.ui_discovery_endpoints import (
 )
 
 router: Final = APIRouter()
+
+_BUILTIN_DEFAULT_LANGUAGE: Final = "en"
+_BUILTIN_LANGUAGE_STORAGE_KEY: Final = "litellm_language"
+_LANGUAGE_CODE: Final = re.compile(r"^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$")
+_STORAGE_KEY: Final = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
+
+
+def ui_language_settings() -> tuple[str, str]:
+    raw_language: Final = os.getenv("DEFAULT_LANGUAGE", _BUILTIN_DEFAULT_LANGUAGE)
+    raw_storage_key: Final = os.getenv("LANGUAGE_STORAGE_KEY", _BUILTIN_LANGUAGE_STORAGE_KEY)
+    language: Final = raw_language.strip().lower()
+    storage_key: Final = raw_storage_key.strip()
+    return (
+        language if _LANGUAGE_CODE.fullmatch(language) else _BUILTIN_DEFAULT_LANGUAGE,
+        storage_key if _STORAGE_KEY.fullmatch(storage_key) else _BUILTIN_LANGUAGE_STORAGE_KEY,
+    )
 
 
 @router.get("/.well-known/litellm-ui-config", response_model=UiDiscoveryEndpoints)
@@ -39,6 +56,7 @@ async def get_ui_config():
     gateway_base_url: Final[str | None] = (
         raw_gateway_base_url.strip().rstrip("/") or None if raw_gateway_base_url is not None else None
     )
+    default_language, language_storage_key = ui_language_settings()
 
     return UiDiscoveryEndpoints(
         server_root_path=get_server_root_path(),
@@ -53,4 +71,6 @@ async def get_ui_config():
         mcp_stdio_enabled=is_mcp_stdio_enabled(),
         use_si_terminology=use_si_terminology,
         claude_code_marketplace_auth_required=marketplace_auth_required(),
+        default_language=default_language,
+        language_storage_key=language_storage_key,
     )

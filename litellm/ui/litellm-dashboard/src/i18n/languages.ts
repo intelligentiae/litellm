@@ -7,18 +7,54 @@ export type LanguageStore = { readonly read: () => string | null; readonly write
 export const DEFAULT_LANGUAGE = "en";
 export const LANGUAGE_STORAGE_KEY = "litellm_language";
 
+const LANGUAGE_CODE = /^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/;
+const STORAGE_KEY = /^[A-Za-z0-9._:-]{1,128}$/;
+
+export type LanguageConfig = {
+  readonly defaultLanguage: string;
+  readonly storageKey: string;
+};
+
+export const builtinLanguageConfig: LanguageConfig = {
+  defaultLanguage: DEFAULT_LANGUAGE,
+  storageKey: LANGUAGE_STORAGE_KEY,
+};
+
+export const languageConfigFromUiConfig = (payload: {
+  readonly default_language?: string;
+  readonly language_storage_key?: string;
+}): LanguageConfig => ({
+  defaultLanguage:
+    payload.default_language !== undefined && LANGUAGE_CODE.test(payload.default_language)
+      ? payload.default_language
+      : DEFAULT_LANGUAGE,
+  storageKey:
+    payload.language_storage_key !== undefined && STORAGE_KEY.test(payload.language_storage_key)
+      ? payload.language_storage_key
+      : LANGUAGE_STORAGE_KEY,
+});
+
 export const LOCALES: Locales = new Map([
   ["it", () => import("./locales/it.json").then((module) => module.default)],
   ["es", () => import("./locales/es.json").then((module) => module.default)],
 ]);
 
-export const browserLanguageStore: LanguageStore = {
-  read: () => getLocalStorageItem(LANGUAGE_STORAGE_KEY),
-  write: (language) => setLocalStorageItem(LANGUAGE_STORAGE_KEY, language),
-};
+export const createLanguageStore = (storageKey: string): LanguageStore => ({
+  read: () => getLocalStorageItem(storageKey),
+  write: (language) => setLocalStorageItem(storageKey, language),
+});
 
-export const resolveLanguage = (stored: string | null, locales: Locales): string =>
-  stored !== null && locales.has(stored) ? stored : DEFAULT_LANGUAGE;
+export const browserLanguageStore: LanguageStore = createLanguageStore(LANGUAGE_STORAGE_KEY);
+
+export const resolveLanguage = (
+  stored: string | null,
+  locales: Locales,
+  defaultLanguage: string = DEFAULT_LANGUAGE,
+): string => {
+  if (stored !== null && locales.has(stored)) return stored;
+  if (defaultLanguage !== DEFAULT_LANGUAGE && locales.has(defaultLanguage)) return defaultLanguage;
+  return DEFAULT_LANGUAGE;
+};
 
 export const supportedLanguages = (locales: Locales): readonly string[] => [DEFAULT_LANGUAGE, ...locales.keys()];
 

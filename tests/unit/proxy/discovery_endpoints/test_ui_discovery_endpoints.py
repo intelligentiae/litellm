@@ -553,3 +553,42 @@ def test_ui_config_reports_whether_the_marketplace_requires_a_key_as_the_marketp
 
     assert response.status_code == 200
     assert response.json()["claude_code_marketplace_auth_required"] is expected
+
+
+@pytest.mark.parametrize(
+    ("language", "storage_key", "expected_language", "expected_storage_key"),
+    [
+        (None, None, "en", "litellm_language"),
+        ("it", "intelligo_language", "it", "intelligo_language"),
+        ("IT", "intelligo_language", "it", "intelligo_language"),
+        ("not a language", "bad key", "en", "litellm_language"),
+    ],
+)
+def test_ui_config_reads_language_settings_from_the_environment(
+    monkeypatch: pytest.MonkeyPatch,
+    language: str | None,
+    storage_key: str | None,
+    expected_language: str,
+    expected_storage_key: str,
+) -> None:
+    app: Final[FastAPI] = FastAPI()
+    app.include_router(router)
+    if language is None:
+        monkeypatch.delenv("DEFAULT_LANGUAGE", raising=False)
+    else:
+        monkeypatch.setenv("DEFAULT_LANGUAGE", language)
+    if storage_key is None:
+        monkeypatch.delenv("LANGUAGE_STORAGE_KEY", raising=False)
+    else:
+        monkeypatch.setenv("LANGUAGE_STORAGE_KEY", storage_key)
+
+    with (
+        patch("litellm.proxy.utils.get_server_root_path", return_value="/"),
+        patch("litellm.proxy.utils.get_proxy_base_url", return_value=None),
+        patch("litellm.proxy.auth.auth_utils.has_user_setup_sso", return_value=False),
+    ):
+        response: Final = TestClient(app).get("/.well-known/litellm-ui-config")
+
+    assert response.status_code == 200
+    assert response.json()["default_language"] == expected_language
+    assert response.json()["language_storage_key"] == expected_storage_key
