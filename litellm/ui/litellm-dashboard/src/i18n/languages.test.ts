@@ -30,6 +30,7 @@ describe("resolveLanguage", () => {
 
   it("keeps a stored language ahead of the configured default", () => {
     expect(resolveLanguage("ja", locales, "en")).toBe("ja");
+    expect(resolveLanguage("en", locales, "ja")).toBe("en");
   });
 
   it("ignores a configured default that has no translations", () => {

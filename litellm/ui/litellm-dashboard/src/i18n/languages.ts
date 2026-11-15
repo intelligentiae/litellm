@@ -51,6 +51,7 @@ export const resolveLanguage = (
   locales: Locales,
   defaultLanguage: string = DEFAULT_LANGUAGE,
 ): string => {
+  if (stored === DEFAULT_LANGUAGE) return DEFAULT_LANGUAGE;
   if (stored !== null && locales.has(stored)) return stored;
   if (defaultLanguage !== DEFAULT_LANGUAGE && locales.has(defaultLanguage)) return defaultLanguage;
   return DEFAULT_LANGUAGE;
