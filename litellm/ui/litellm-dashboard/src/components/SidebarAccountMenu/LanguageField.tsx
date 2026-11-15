@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/
 import { useLanguageSettings } from "@/i18n/languageSettings";
 import {
   createLanguageStore,
+  DEFAULT_LANGUAGE,
   englishName,
   LanguageStore,
   Locales,
@@ -66,7 +67,7 @@ export default function LanguageField({
               <SelectPrimitive.ItemIndicator className="flex">
                 <CheckIcon className="size-4" />
               </SelectPrimitive.ItemIndicator>
-              {language !== settings.defaultLanguage && (
+              {language !== DEFAULT_LANGUAGE && (
                 <span className="ml-auto pl-6 whitespace-nowrap text-muted-foreground">{englishName(language)}</span>
               )}
             </SelectPrimitive.Item>
